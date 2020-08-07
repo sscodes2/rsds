@@ -1,15 +1,39 @@
 # rsds
 
-``rsds`` is a Rust implementation of dask-scheduler for [https://distributed.dask.org](dask/distributed).
-It is an experiment for evaluating performance gain of non-Python scheduler and for playing with different schedulers.
+``rsds`` is a Rust implementation of the [Dask/distributed](https://distributed.dask.org) central scheduler.
+It is an experiment for evaluating the performance gain of a non-Python scheduler and for benchmarking different scheduling algorithms.
 
-## Warning!
+## Disclaimer
+Dask/distributed has a very complex feature set and protocol and we do not support most of it.
+Features like dashboard or custom communication protocols (UCX) and others are not supported.
 
-This branch uses a simplified Dask protocol, hence it does *NOT* work with an upstream version. You have to use Dask from:
+If RSDS can run your use case, you could possibly see some speedup if the scheduler is the bottleneck
+of your pipeline. If it isn't, it can be actually slower than Dask, since it uses much simpler scheduling
+heuristics. YMMV.
 
-https://github.com/Kobzol/distributed/
+If your pipeline cannot be run by rsds, feel free to send us an issue.
 
-branch: simple-frame
+## Usage
+First you need to install a modified version of Dask/distributed (currently it tracks Dask version 2.16.0):
+```bash
+$ pip install git+https://github.com/kobzol/distributed@simplified-encoding
+```
+
+Then compile RSDS:
+```bash
+$ RUSTFLAGS="-C target-cpu=native" cargo build --release
+```
+
+After that just use `target/release/rsds-scheduler` as you would use `dask-scheduler`.
+Be wary that most of the command line options from `dask-scheduler` are not supported though.
+
+## Benchmarks
+You can find a set of benchmarks in the `script` folder. Here are some result of comparing `RSDS` and `Dask`
+on 1/7 nodes with 24 workers each.
+
+![image](resources/speedup-zw-rsds-ws-1.png)
+
+![image](resources/speedup-zw-rsds-ws-7.png)
 
 ## Reports
 
